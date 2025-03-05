@@ -8,61 +8,96 @@ import subprocess
 class FaceRecognitionSystem:
     def __init__(self, root):
         self.root = root
-        self.root.geometry("1530x790+0+0")
+
+        # Get screen width and height dynamically
+        self.screen_width = root.winfo_screenwidth()
+        self.screen_height = root.winfo_screenheight()
+
+        # Set window size dynamically
+        self.root.geometry(f"{self.screen_width}x{self.screen_height}+-10+0")
         self.root.title("Face Recognition System")
         self.root.configure(bg="#f0f0f0")
 
-        # Background Image
-        self.bg_img = ImageTk.PhotoImage(Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/bg_image.jpg").resize((1530, 710), Image.LANCZOS))
-        Label(self.root, image=self.bg_img).place(x=0, y=45, width=1530, height=755)
+        # **Dynamic Sizing Variables**
+        self.title_height = int(self.screen_height * 0.07)  # 7% of screen height for title bar
+        self.btn_width = int(self.screen_width * 0.14)  # 14% of screen width
+        self.btn_height = int(self.screen_height * 0.22)  # 22% of screen height
+        self.spacing_x = int(self.screen_width * 0.05)  # 5% of screen width for horizontal spacing
+        self.spacing_y = int(self.screen_height * 0.08)  # **8% of screen height for row spacing (fix)**
+        self.font_size = max(12, int(self.screen_width * 0.01))  # Adjust font size dynamically
 
-        # Title Bar
-        title_lbl = Label(self.root, text="FACE RECOGNITION ATTENDANCE SYSTEM", font=("Montserrat", 25, "bold"), bg="white", fg="black")
-        title_lbl.place(x=0, y=0, width=1530, height=45)
+        # **Background Image**
+        self.bg_img = ImageTk.PhotoImage(
+            Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/bg_image.jpg")
+            .resize((self.screen_width, self.screen_height - self.title_height), Image.LANCZOS)
+        )
+        Label(self.root, image=self.bg_img).place(x=0, y=self.title_height, width=self.screen_width, height=self.screen_height - self.title_height)
 
-        # Time Display
+        # **Title Bar**
+        title_lbl = Label(self.root, text="FACE RECOGNITION ATTENDANCE SYSTEM", 
+                          font=("Montserrat", int(self.screen_width * 0.018), "bold"), 
+                          bg="white", fg="black")
+        title_lbl.place(x=0, y=0, width=self.screen_width, height=self.title_height)
+
+        # **Time Display**
         def time():
             lbl.config(text=strftime('%H:%M:%S %p'))
             lbl.after(1000, time)
         
-        lbl = Label(title_lbl, font=('Times New Roman', 14, 'bold'), background='white', foreground='blue')
-        lbl.place(x=10, y=5, width=110, height=30)
+        lbl = Label(title_lbl, font=('Times New Roman', int(self.screen_width * 0.008), 'bold'), 
+                    background='white', foreground='blue')
+        lbl.place(x=int(self.screen_width * 0.01), y=int(self.title_height * 0.1), 
+                  width=int(self.screen_width * 0.07), height=int(self.title_height * 0.7))
         time()
 
-        # Button Data
+        # **Button Data (Dynamically Placed)**
         self.buttons_data = [
-            ("Student Details", "student_datails.jpg", self.student_details, 200, 100),
-            ("Face Detector", "face_recognition.jpg", self.face_data, 500, 100),
-            ("Attendance", "attendence.jpg", self.attendance_data, 800, 100),
-            ("Help", "help.jpg", self.help_data, 1100, 100),
-            ("Train Data", "train_data.jpg", self.train_data, 200, 380),
-            ("Photos", "photos.jpg", self.open_img, 500, 380),
-            ("Developer", "developer.jpg", self.developer_data, 800, 380),
-            ("Exit", "exit.jpg", self.iExit, 1100, 380),
+            ("Student Details", "student_datails.jpg", self.student_details),
+            ("Face Detector", "face_recognition.jpg", self.face_data),
+            ("Attendance", "attendence.jpg", self.attendance_data),
+            ("Help", "help.jpg", self.help_data),
+            ("Train Data", "train_data.jpg", self.train_data),
+            ("Photos", "photos.jpg", self.open_img),
+            ("Developer", "developer.jpg", self.developer_data),
+            ("Exit", "exit.jpg", self.iExit),
         ]
 
-        self.button_objects = []
+        # **Create Buttons Dynamically**
+        self.create_buttons()
 
-        for text, img_path, command, x, y in self.buttons_data:
+    def create_buttons(self):
+        """Dynamically creates buttons in two rows with proper spacing."""
+        num_cols = 4  # 4 buttons per row
+        total_width = (self.btn_width * num_cols) + (self.spacing_x * (num_cols - 1))
+        start_x = (self.screen_width - total_width) // 2  # Centering
+
+        row1_y = int(self.screen_height * 0.20)  # First row position
+        row2_y = row1_y + self.btn_height + self.spacing_y  # **Now row spacing is fixed**
+
+        for index, (text, img_path, command) in enumerate(self.buttons_data):
+            x = start_x + (index % num_cols) * (self.btn_width + self.spacing_x)
+            y = row1_y if index < num_cols else row2_y  # Decide row based on index
+
             self.create_button(text, img_path, command, x, y)
 
     def create_button(self, text, img_path, command, x, y):
         """Creates an interactive button with hover effects."""
-        img = Image.open(f"C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/{img_path}").resize((220, 220), Image.LANCZOS)
+        img = Image.open(f"C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/{img_path}")\
+                  .resize((self.btn_width, self.btn_height), Image.LANCZOS)
         photo_img = ImageTk.PhotoImage(img)
 
         b = Button(self.root, image=photo_img, cursor="hand2", command=command, bd=0, relief=FLAT)
         b.image = photo_img
-        b.place(x=x, y=y, width=220, height=220)
+        b.place(x=x, y=y, width=self.btn_width, height=self.btn_height)
 
-        b_text = Button(self.root, text=text, cursor="hand2", command=command, font=("Montserrat", 15, "bold"), bg="lightskyblue", fg="black", bd=0, relief=FLAT)
-        b_text.place(x=x, y=y+200, width=220, height=40)
+        b_text = Button(self.root, text=text, cursor="hand2", command=command, 
+                        font=("Montserrat", self.font_size, "bold"), 
+                        bg="lightskyblue", fg="black", bd=0, relief=FLAT)
+        b_text.place(x=x, y=y + self.btn_height, width=self.btn_width, height=int(self.screen_height * 0.05))
 
         # Hover Effects
         b.bind("<Enter>", lambda e: b_text.config(bg="blue", fg="white"))
         b.bind("<Leave>", lambda e: b_text.config(bg="lightskyblue", fg="black"))
-
-        self.button_objects.append((b, b_text))
 
     def open_img(self):
         os.startfile("data")
