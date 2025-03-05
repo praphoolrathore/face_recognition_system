@@ -1,41 +1,54 @@
 from tkinter import *
-from tkinter import ttk
 from PIL import Image, ImageTk
-from tkinter import messagebox
-import mysql.connector
-import cv2
-import os 
 
+class Help:
+    def __init__(self, root):
+        self.root = root
 
-class Help:  # Create class
-    def __init__(self, root):  # Constructor
-        self.root = root    # Initialize
-        self.root.geometry("1530x790+0+0")  # Window size
-        self.root.title("face recognition system")  
+        # Get screen width and height dynamically
+        self.screen_width = self.root.winfo_screenwidth()
+        self.screen_height = self.root.winfo_screenheight()
 
-        title_lbl=Label(self.root,text="Help Desk",font=("montserrat",35,"bold"),bg="white",fg="black")
-        title_lbl.place(x=0,y=0,width=1530,height=45)
+        # Set window size dynamically
+        self.root.geometry(f"{self.screen_width}x{self.screen_height}+-10+0")
+        self.root.title("Face Recognition System")
 
+        # **Dynamic Sizing Variables**
+        self.title_height = int(self.screen_height * 0.07)  # 7% of screen height for title bar
+        self.label_font_size = max(12, int(self.screen_width * 0.01))  # Adjust font size dynamically
+
+        # **Title Bar**
+        title_lbl = Label(self.root, text="Help Desk",
+                          font=("Montserrat", int(self.screen_width * 0.018), "bold"),
+                          bg="white", fg="black")
+        title_lbl.place(x=0, y=0, width=self.screen_width, height=self.title_height)
+
+        # **Background Image (Scaled Dynamically)**
         img_top = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/bg_image.jpg")
-        img_top = img_top.resize((1530, 720), Image.LANCZOS)  # resize syntax
+        img_top = img_top.resize((self.screen_width, self.screen_height - self.title_height), Image.LANCZOS)
         self.photoimg_top = ImageTk.PhotoImage(img_top)
 
-        # # Display image
+        # **Display Background Image**
         f_lbl = Label(self.root, image=self.photoimg_top)
-        f_lbl.place(x=0, y=55, width=1530, height=720)
-        
-        dev_label1= Label(f_lbl,text="Email: praphoolrathore2003@gmail.com",font=("montserrat",15,"bold"),bg="white")
-        dev_label1.place(x=550,y=220)
+        f_lbl.place(x=0, y=self.title_height, width=self.screen_width, height=self.screen_height - self.title_height)
 
-        dev_label2= Label(f_lbl,text="Email: harshvardhans809@gmail.com   ",font=("montserrat",15,"bold"),bg="white")
-        dev_label2.place(x=550,y=270)
+        # **Email Labels (Positioned Dynamically)**
+        email_start_y = int(self.screen_height * 0.30)  # Start position for emails (30% of screen height)
+        email_spacing = int(self.screen_height * 0.07)  # 7% of screen height as spacing
 
-        dev_label3= Label(f_lbl,text="Email: pranavmakwanaop@gmail.com   ",font=("montserrat",15,"bold"),bg="white")
-        dev_label3.place(x=550,y=320)
+        emails = [
+            "Email: praphoolrathore2003@gmail.com",
+            "Email: harshvardhans809@gmail.com",
+            "Email: pranavmakwanaop@gmail.com"
+        ]
 
+        for i, email in enumerate(emails):
+            Label(f_lbl, text=email,
+                  font=("Montserrat", self.label_font_size, "bold"),
+                  bg="white").place(x=int(self.screen_width * 0.35),
+                                    y=email_start_y + i * email_spacing)
 
-if __name__ == "__main__":  # Main function
+if __name__ == "__main__":
     root = Tk()
     obj = Help(root)
     root.mainloop()
-

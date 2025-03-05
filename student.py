@@ -10,7 +10,7 @@ import os
 class Student:  # Create class
     def __init__(self, root):  # Constructor
         self.root = root    # Initialize
-        self.root.geometry("1530x790+0+0")  # Window size
+        self.root.geometry("1536x864+-10+0")  # Window size
         self.root.title("face recognition system")  
 
 
