@@ -2,17 +2,17 @@ from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk,ImageSequence
 from tkinter import messagebox
+import dlib       # new
 import mysql.connector
 import cv2
 import os 
-import re
 
 
 class Student:  # Create class
     def __init__(self, root):  # Constructor
         self.root = root    # Initialize
         self.root.geometry("1536x864+-10+0")  # Window size
-        self.root.title("face recognition system")
+        self.root.title("face recognition system")  
 
 
         #================variables=========
@@ -40,7 +40,7 @@ class Student:  # Create class
 
 
         # # first image
-        img = Image.open("college_images/second_image.jpeg")
+        img = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/second_image.jpeg")
         img = img.resize((510, 130), Image.LANCZOS)  # resize syntax
         self.photoimg = ImageTk.PhotoImage(img)
 
@@ -50,7 +50,7 @@ class Student:  # Create class
 
 
         # # second image
-        img1 = Image.open("college_images/first_image.jpeg")
+        img1 = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/first_image.jpeg")
         img1 = img1.resize((510, 130), Image.LANCZOS)  # resize syntax
         self.photoimg1 = ImageTk.PhotoImage(img1)
 
@@ -61,7 +61,7 @@ class Student:  # Create class
 
 
         # # third image
-        img2 = Image.open("college_images/third_image.jpeg")
+        img2 = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/third_image.jpeg")
         img2 = img2.resize((510, 130), Image.LANCZOS)  # resize syntax
         self.photoimg2 = ImageTk.PhotoImage(img2)
 
@@ -74,7 +74,7 @@ class Student:  # Create class
 
 
         # # Background image
-        img3 = Image.open("college_images/bg_image.jpg")
+        img3 = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/bg_image.jpg")
         img3 = img3.resize((1530, 710), Image.LANCZOS)  # resize syntax
         self.photoimg3 = ImageTk.PhotoImage(img3)
 
@@ -92,7 +92,7 @@ class Student:  # Create class
         Left_frame = LabelFrame(main_frame,bd=2,bg="white",relief=RIDGE,text="Student Details",font=("montserrat",12,"bold") )
         Left_frame.place(x=10,y=10,width = 730,height = 580)
 
-        img_left = Image.open("college_images/third_image.jpeg")
+        img_left = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/third_image.jpeg")
         img_left = img_left.resize((720, 130), Image.LANCZOS)  # resize syntax
         self.photoimg_left = ImageTk.PhotoImage(img_left)
 
@@ -280,21 +280,17 @@ class Student:  # Create class
         # # # Display image
         # f_lbl = Label(Right_frame, image=self.photoimg_right)
         # f_lbl.place(x=5, y=0, width=720, height=130)
-        
+        self.img = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/animated.gif")
+        self.frames = [ImageTk.PhotoImage(img.resize((720, 130), Image.LANCZOS)) for img in ImageSequence.Iterator(self.img)]
 
-        # Right Frame for Video
-        self.video_frame = Frame(Right_frame, width=720, height=130)
-        self.video_frame.pack()
+        # Label to Display GIF
+        self.label = Label(Right_frame)
+        self.label.place(x=0, y=0, width=720, height=130)
 
-        # Video Label
-        self.label = Label(self.video_frame)
-        self.label.pack()
+        # Start Animation
+        self.frame_idx = 0
+        self.update_animation()
 
-        # Load Video
-        self.cap = cv2.VideoCapture("college_images/animated.mp4")
-        self.play_video()
-
-    
     
         
         #==========Search system====================
@@ -381,35 +377,6 @@ class Student:  # Create class
         self.student_table.bind("<ButtonRelease>",self.get_cursor)
         self.fetch_data()
 
-
-    def play_video(self):
-        ret, frame = self.cap.read()
-        if ret:
-            frame = cv2.resize(frame, (720, 130))
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            img = ImageTk.PhotoImage(Image.fromarray(frame))
-            self.label.config(image=img)
-            self.label.image = img
-            self.root.after(20, self.play_video)  # Adjust timing for smooth playback
-        else:
-            self.cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Loop video
-            self.play_video()
-
-
-    def get_db_connection(self):
-        try:
-            return mysql.connector.connect(
-                user="root",
-                password="praful",
-                host="localhost",
-                database="face_recognizer",
-                port=3305
-            )
-        except mysql.connector.Error as e:
-            messagebox.showerror("Database Error", f"Connection failed: {str(e)}", parent=self.root)
-            return None
-
-
     #+==========function declaration====================
     def update_animation(self):
         self.label.config(image=self.frames[self.frame_idx])
@@ -420,18 +387,12 @@ class Student:  # Create class
     def add_data(self):
         if self.var_dep.get()=="Select Department" or self.var_std_name.get()=="" or self.var_std_id.get()=="":
             messagebox.showerror("Error","All fields are required",parent = self.root)
-        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        if not re.match(email_pattern, self.var_email.get()):
-            messagebox.showerror("Error", "Invalid email format", parent=self.root)
-            return
-        elif not self.var_phone.get().isdigit() or len(self.var_phone.get()) != 10:
-            messagebox.showerror("Error", "Phone number must be exactly 10 digits", parent=self.root)
+        elif "@" not in self.var_email.get() or len(self.var_phone.get()) != 10 or not self.var_phone.get().isdigit():
+            messagebox.showerror("Error", "Invalid details", parent=self.root)
             return
         else:
             try:
-                conn = self.get_db_connection()
-                if conn is None: 
-                    return
+                conn=mysql.connector.connect(user="root",password="praful",host="localhost",database="face_recognizer",port=3305)
                 my_cursor=conn.cursor()
                 my_cursor.execute("insert into student(dep,course,year,semester,student_id,name,division,roll,gender,dob,email,phone,address,teacher,photosample) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",(
                     self.var_dep.get(),
@@ -468,9 +429,7 @@ class Student:  # Create class
 
     #==============fetch data====================
     def fetch_data(self):
-        conn = self.get_db_connection()
-        if conn is None: 
-            return
+        conn=mysql.connector.connect(user="root",password="praful",host="localhost",database="face_recognizer",port=3305)
         my_cursor=conn.cursor()
         my_cursor.execute("select * from student")
         data=my_cursor.fetchall()
@@ -520,20 +479,14 @@ class Student:  # Create class
     def update_data(self):
         if self.var_dep.get()=="Select Department" or self.var_std_name.get()=="" or self.var_std_id.get()=="":
             messagebox.showerror("Error","All fields are required",parent = self.root)
-        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        if not re.match(email_pattern, self.var_email.get()):
-            messagebox.showerror("Error", "Invalid email format", parent=self.root)
-            return
-        elif not self.var_phone.get().isdigit() or len(self.var_phone.get()) != 10:
-            messagebox.showerror("Error", "Phone number must be exactly 10 digits", parent=self.root)
+        elif "@" not in self.var_email.get() or len(self.var_phone.get()) != 10 or not self.var_phone.get().isdigit():
+            messagebox.showerror("Error", "Invalid details", parent=self.root)
             return
         else:
             try:
                 Update=messagebox.askyesno("Update","Do you want to update this student details",parent=self.root)
                 if Update>0:
-                    conn = self.get_db_connection()
-                    if conn is None: 
-                        return
+                    conn=mysql.connector.connect(user="root",password="praful",host="localhost",database="face_recognizer",port=3305)
                     my_cursor=conn.cursor()
                     my_cursor.execute("update student set dep=%s,course=%s,year=%s,semester=%s,name=%s,division=%s,roll=%s,gender=%s,dob=%s,email=%s,phone=%s,address=%s,teacher=%s,photosample=%s where student_id=%s",(
                         self.var_dep.get(),
@@ -571,9 +524,7 @@ class Student:  # Create class
             try:
                 delete = messagebox.askyesno("Student Delete Page", "Do you want to delete this student",parent=self.root)
                 if delete>0:
-                    conn = self.get_db_connection()
-                    if conn is None: 
-                        return
+                    conn=mysql.connector.connect(user="root",password="praful",host="localhost",database="face_recognizer",port=3305)
                     my_cursor=conn.cursor()
                     sql="delete from student where student_id = %s"
                     val=(self.var_std_id.get(),)
@@ -612,21 +563,15 @@ class Student:  # Create class
         if self.var_dep.get() == "Select Department" or self.var_std_name.get() == "" or self.var_std_id.get() == "":
             messagebox.showerror("Error", "All fields are required", parent=self.root)
             return  # Stop execution if fields are empty
-            
-        
+
         try:
             # ✅ Connect to MySQL database
-            conn = self.get_db_connection()
-            if conn is None: 
-                return
+            conn = mysql.connector.connect(user="root", password="praful", host="localhost", database="face_recognizer", port=3305)
             my_cursor = conn.cursor()
-            student_id1=self.var_std_id.get()
-            # ✅ Fetch correct student ID
-            my_cursor.execute("SELECT MAX(student_id) FROM student")  
-            result = my_cursor.fetchone()
-            id = result[0] if result[0] else 1  # If table is empty, start with ID 1
 
-            # ✅ Update student details
+            student_id = self.var_std_id.get()
+
+            # ✅ Update student details in the database
             my_cursor.execute("""
                 UPDATE student 
                 SET dep=%s, course=%s, year=%s, semester=%s, name=%s, division=%s, roll=%s, gender=%s, dob=%s, 
@@ -646,73 +591,70 @@ class Student:  # Create class
                 self.var_phone.get(),
                 self.var_address.get(),
                 self.var_teacher.get(),
-                self.var_radio1.get(),
-                self.var_std_id.get()
+                "Yes",  # Mark that photos are available
+                student_id
             ))
 
             conn.commit()
-            self.fetch_data()
-            self.reset_data()
             conn.close()
 
-            # ✅ Load OpenCV face classifier
-            face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+            # ✅ Load Dlib's CNN-based face detector
+            detector = dlib.get_frontal_face_detector()
 
-            def face_cropped(img):
-                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                faces = face_classifier.detectMultiScale(gray, 1.3, 5)
-                
-                for (x, y, w, h) in faces:
-                    return img[y:y+h, x:x+w]  # Return cropped face
-                return None  # If no face detected, return None
-
-            cap = cv2.VideoCapture(0)
+            # ✅ Start webcam
+            cap = cv2.VideoCapture(1)
             img_id = 0
-            
-              # ✅ Use correct student ID
+            max_images = 100  # Adjust as needed
 
+            dataset_path = "dataset"
+            os.makedirs(dataset_path, exist_ok=True)  # Ensure the dataset folder exists
 
-            capturing = False  # ✅ Start capturing only when user presses "S"
+            capturing = False  # Start capturing when user presses "S"
 
             while True:
-                ret, my_frame = cap.read()
+                ret, frame = cap.read()
                 if not ret:
                     continue  # Skip if frame is not captured
-                
-                cv2.putText(my_frame, "Press 'S' to Start Capture", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                cv2.imshow("Camera Window", my_frame)
+
+                cv2.putText(frame, "Press 'S' to Start Capture", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                cv2.imshow("Camera Window", frame)
 
                 key = cv2.waitKey(1) & 0xFF
-                
-                if key == ord('s') or ord('S'):  
-                    capturing = True  # ✅ Start capturing when "S" key is pressed
 
-                if capturing:  
-                    cropped_face = face_cropped(my_frame)  # Call once
-                    
-                    if cropped_face is not None:
-                        img_id += 1
-                        face = cv2.resize(cropped_face, (450, 450))
-                        face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
+                if key == ord('s'):
+                    capturing = True  # Start capturing when "S" key is pressed
 
-                        file_name_path = "data/user." + student_id1 + "." + str(img_id) + ".jpg"
-                        cv2.imwrite(file_name_path, face)
+                if capturing:
+                    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    faces = detector(gray)  # Detect faces
 
-                        cv2.putText(face, str(img_id), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 2, (0, 255, 0), 2)
-                        cv2.imshow("Cropped Face", face)
+                    for face in faces:
+                        x, y, w, h = face.left(), face.top(), face.width(), face.height()
+                        face_img = frame[y:y + h, x:x + w]  # Crop face
 
-                    if img_id == 300:  # Stop after 100 images
-                        break
+                        if face_img is not None:
+                            img_id += 1
+                            face_resized = cv2.resize(face_img, (250, 250))  # Resize for consistency
 
-                if key == 13:  # Stop if Enter key is pressed
+                            # ✅ Save in dataset folder
+                            file_name_path = os.path.join(dataset_path, f"{student_id}_{img_id}.jpg")
+                            cv2.imwrite(file_name_path, face_resized)
+
+                            cv2.putText(frame, str(img_id), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 2, (0, 255, 0), 2)
+                            cv2.imshow("Cropped Face", face_resized)
+
+                        if img_id == max_images:  # Stop after 100 images
+                            break
+
+                if key == 13 or img_id == max_images:  # Stop if Enter key is pressed
                     break
 
             cap.release()
             cv2.destroyAllWindows()
-            messagebox.showinfo("Result", "Generating data set successful!!!")
+            messagebox.showinfo("Result", "Dataset generated successfully!")
 
         except Exception as es:
-            messagebox.showerror("Error", f"Due To : {str(es)}", parent=self.root)
+            messagebox.showerror("Error", f"Due to: {str(es)}", parent=self.root)
 
 
 
