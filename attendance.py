@@ -1,281 +1,155 @@
 from tkinter import *
-from tkinter import ttk
-from PIL import Image, ImageTk
-from tkinter import messagebox
+from tkinter import ttk, messagebox
+from tkcalendar import DateEntry
 import mysql.connector
-import cv2
+import pandas as pd
 import os
-from time import strftime
-from datetime import datetime
-import numpy as np
-from tkinter import filedialog
-import csv
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.styles import Alignment
+from PIL import Image, ImageTk  # ✅ Import for background image
 
-
-
-
-mydata=[]
-class Attendance:
+class AttendanceExport:
     def __init__(self, root):
         self.root = root
-        self.root.geometry("1536x864+-10+0")
-        self.root.title("Face Recognition System")
+        self.root.title("Attendance Export System")
+        self.root.state('zoomed')
+        self.root.configure(bg='#f0f0f0')
 
-        # ======================== Variables ========================
-
-        self.var_atten_id = StringVar()
-        self.var_atten_roll = StringVar()
-
-        self.var_atten_name = StringVar()
-        self.var_atten_dep = StringVar()
-
-        self.var_atten_time = StringVar()
-        self.var_atten_date = StringVar()
-
-        self.var_atten_attendance = StringVar()
-
-        img = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/second_image.jpeg")
-        img = img.resize((800, 200), Image.LANCZOS)  # resize syntax
-        self.photoimg = ImageTk.PhotoImage(img)
-
-        # # Display image
-        f_lbl = Label(self.root, image=self.photoimg)
-        f_lbl.place(x=0, y=0, width=800, height=200)  
-
-
-        # # second image
-        img1 = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/first_image.jpeg")
-        img1 = img1.resize((800, 200), Image.LANCZOS)  # resize syntax
-        self.photoimg1 = ImageTk.PhotoImage(img1)
-
-        # # Display image
-        f_lbl = Label(self.root, image=self.photoimg1)
-        f_lbl.place(x=800, y=0, width=800, height=200)
-
-         # # Background image
-        img3 = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/bg_image.jpg")
-        img3 = img3.resize((1530, 710), Image.LANCZOS)  # resize syntax
-        self.photoimg3 = ImageTk.PhotoImage(img3)
-
-        # # Display image
-        bg_img = Label(self.root, image=self.photoimg3)
-        bg_img.place(x=0, y=200, width=1530, height=710)
-
-        title_lbl=Label(bg_img,text="ATTENDENCE MANAGMENT SYSTEM",font=("montserrat",35,"bold"),bg="white",fg="black")
-        title_lbl.place(x=0,y=0,width=1530,height=45)
-
-        main_frame=Frame(bg_img, bd=2,bg="white")
-        main_frame.place(x=20,y=50, width=1480,height=600)
-
-        #left frame
-        Left_frame = LabelFrame(main_frame,bd=2,bg="white",relief=RIDGE,text="Student Attendence Details",font=("montserrat",12,"bold") )
-        Left_frame.place(x=10,y=10,width = 730,height = 580)
-
-        img_left = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/network.jpeg")
-        img_left = img_left.resize((720, 130), Image.LANCZOS)  # resize syntax
-        self.photoimg_left = ImageTk.PhotoImage(img_left)
-
-        # # Display image
-        f_lbl = Label(Left_frame, image=self.photoimg_left)
-        f_lbl.place(x=5, y=0, width=720, height=130)
-
-        left_inside_frame=Frame(Left_frame, bd=2,relief=RIDGE,bg="white")
-        left_inside_frame.place(x=0,y=135, width=720,height=370)
-
-        #attemdance id
-        #label and entry
-        # student ID
-        attendanceID_label= Label(left_inside_frame,text="AttendanceID : ",font=("montserrat",13,"bold"),bg="white")
-        attendanceID_label.grid(row=0,column=0,padx=10,pady=5,sticky=W)
-
-        attendanceID_entry=ttk.Entry(left_inside_frame,width=20,textvariable=self.var_atten_id,font=("montserrat",13,"bold"))
-        attendanceID_entry.grid(row=0,column=1,padx=10,pady=5,sticky=W)
-
-        # Name
-        rollLabel = Label(left_inside_frame, text="Roll:", bg="white", font="comicsansns 11 bold")
-        rollLabel.grid(row=0, column=2, padx=4, pady=8)
-
-        atten_roll = ttk.Entry(left_inside_frame, width=22, textvariable=self.var_atten_roll,font="comicsansns 11 bold")
-        atten_roll.grid(row=0, column=3, pady=8)
-
-        # date
-        nameLabel = Label(left_inside_frame, text="Name:", bg="white", font="comicsansns 11 bold")
-        nameLabel.grid(row=1, column=0)  # Removed extra space in column= 0
-
-        atten_name = ttk.Entry(left_inside_frame, width=22, textvariable=self.var_atten_name ,font="comicsansns 11 bold")
-        atten_name.grid(row=1, column=1, pady=8)
-
-        # Department
-        depLabel = Label(left_inside_frame, text="Department:", bg="white", font="comicsansns 11 bold")
-        depLabel.grid(row=1, column=2)
-
-        atten_dep = ttk.Entry(left_inside_frame, width=22, textvariable=self.var_atten_dep, font="comicsansns 11 bold")
-        atten_dep.grid(row=1, column=3, pady=8)
-
-        # time
-        timeLabel = Label(left_inside_frame, text="Time:", bg="white", font="comicsansns 11 bold")
-        timeLabel.grid(row=2, column=0)
-
-        atten_time = ttk.Entry(left_inside_frame, width=22, textvariable=self.var_atten_time ,font="comicsansns 11 bold")
-        atten_time.grid(row=2, column=1, pady=8)
-
-        # Date
-        dateLabel = Label(left_inside_frame, text="Date:", bg="white", font="comicsansns 11 bold")
-        dateLabel.grid(row=2, column=2)
-
-        atten_date = ttk.Entry(left_inside_frame, width=22, textvariable=self.var_atten_date,font="comicsansns 11 bold")
-        atten_date.grid(row=2, column=3, pady=8)
-
-        # attendance
-        attendanceLabel = Label(left_inside_frame, text="Attendance Status", bg="white", font="comicsansns 11 bold")  # Corrected text
-        attendanceLabel.grid(row=3, column=0)
-
-        self.atten_status=ttk.Combobox(left_inside_frame, width=20, textvariable=self.var_atten_attendance ,font="comicsansns 11 bold", state="readonly")
-        self.atten_status ["values"]=("Status", "Present", "Absent")
-
-        self.atten_status.grid(row=3,column=1, pady=8)
-        self.atten_status.current(0)
-
-        # Buttons Frame
-        btn_frame = Frame(left_inside_frame, bd=2, relief=RIDGE, bg="white")
-        btn_frame.place(x=0, y=300, width=715, height=35)
-
-        # Save Button
-        save_btn = Button(btn_frame, text="Import csv",command=self.importCsv,width=17, font=("montserrat", 13, "bold"), bg="lightskyblue", fg="black")
-        save_btn.grid(row=0, column=0)
-
-        # Update Button
-        update_btn = Button(btn_frame, text="Export csv",command=self.exportCsv, width=17, font=("montserrat", 13, "bold"), bg="lightskyblue", fg="black")
-        update_btn.grid(row=0, column=1)
-
-        # Delete Button
-        delete_btn = Button(btn_frame, text="Update", command=self.update_data,width=17, font=("montserrat", 13, "bold"), bg="lightskyblue", fg="black")
-        delete_btn.grid(row=0, column=2)
-
-        # Reset Button
-        reset_btn = Button(btn_frame, text="Reset", command=self.reset_data,width=17, font=("montserrat", 13, "bold"), bg="lightskyblue", fg="black")
-        reset_btn.grid(row=0, column=3)
-
-
-
-
-        #Right label frame
-        Right_frame = LabelFrame(main_frame,bd=2,bg="white",relief=RIDGE,text="Attendence Details",font=("montserrat",12,"bold") )
-        Right_frame.place(x=750,y=10,width = 720,height = 580)
-
-        table_frame = Frame(Right_frame, bd=2, relief=RIDGE, bg="white")
-        table_frame.place(x=5, y=5, width=700, height=455)
-
-        #=========scroll bar============
-        scroll_x=ttk.Scrollbar(table_frame,orient=HORIZONTAL)
-        scroll_y=ttk.Scrollbar(table_frame,orient=VERTICAL)
-
-        self.AttendanceReportTable=ttk.Treeview(table_frame,column=("id","roll","name","department","time","date","attendance"),xscrollcommand=scroll_x.set,yscrollcommand=scroll_y.set)
-        scroll_x.pack(side=BOTTOM,fill=X)
-        scroll_y.pack(side=RIGHT,fill=Y)
-        scroll_x.config(command=self.AttendanceReportTable.xview)
-        scroll_y.config(command=self.AttendanceReportTable.yview)
-
-        self.AttendanceReportTable.heading("id", text="Attendance ID")
-        self.AttendanceReportTable.heading("roll", text="Roll")
-
-        self.AttendanceReportTable.heading("name", text="Name")
-        self.AttendanceReportTable.heading("department", text="Department")
-
-        self.AttendanceReportTable.heading("time", text="Time")
-        self.AttendanceReportTable.heading("date", text="Date")
-
-        self.AttendanceReportTable.heading("attendance", text="Attendance")
-
-        self.AttendanceReportTable["show"]="headings"
-
-        self.AttendanceReportTable.column("id", width=100)
-        self.AttendanceReportTable.column("roll", width=100)
-
-        self.AttendanceReportTable.column("name", width=100)
-        self.AttendanceReportTable.column("department", width=100)
-
-        self.AttendanceReportTable.column("time", width=100)
-        self.AttendanceReportTable.column("date", width=100)
-
-        self.AttendanceReportTable.column("attendance", width=100)
-
-        self.AttendanceReportTable.pack(fill=BOTH, expand=1)
-
-        self.AttendanceReportTable.bind("<ButtonRelease>",self.get_cursor)
-
-# ================== fetch data =====================
-
-    def fetchData(self, rows):
-        self.AttendanceReportTable.delete(*self.AttendanceReportTable.get_children())
-
-        for i in rows:
-            self.AttendanceReportTable.insert("", END, values=i)
-
-    def importCsv(self):
-        global mydata
-        mydata.clear()
-        fln = filedialog.askopenfilename(initialdir=os.getcwd(), title="Open CSV",
-                                        filetypes=(("CSV File", "*.csv"), ("All File", "*.*")), parent=self.root)
-        if not fln:
-            return  # User canceled file selection
-
-        with open(fln, newline="") as myfile:
-            csvread = csv.reader(myfile)
-            for i in csvread:
-                mydata.append(i)
-
-        self.fetchData(mydata)
-
-    def exportCsv(self):
-        if len(mydata) < 1:
-            messagebox.showerror("Error", "No data found to export", parent=self.root)
+        # ✅ Load and Set Background Image
+        image_path = "college_images/attendence_bg.jpg"  # Make sure this file exists
+        if not os.path.exists(image_path):
+            messagebox.showerror("Error", "Background image not found!")
             return
 
-        fln = filedialog.asksaveasfilename(initialdir=os.getcwd(), title="Save CSV",
-                                        filetypes=(("CSV File", "*.csv"), ("All File", "*.*")), parent=self.root,
-                                        defaultextension=".csv")
+        self.bg_image = Image.open(image_path)
+        self.bg_image = self.bg_image.resize((self.root.winfo_screenwidth(), self.root.winfo_screenheight()), Image.Resampling.LANCZOS)
+        self.bg_photo = ImageTk.PhotoImage(self.bg_image)
 
-        if not fln:
-            return  # User canceled file selection
+        self.bg_label = Label(self.root, image=self.bg_photo)
+        self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)  # ✅ Fullscreen background
 
-        with open(fln, mode="w", newline="") as myfile:
-            exp_write = csv.writer(myfile)
-            exp_write.writerows(mydata)
+        # ✅ Transparent Frame for Inputs
+        frame = Frame(self.root, bg="#ffffff", bd=2, relief=RIDGE)
+        frame.place(relx=0.3, rely=0.3, relwidth=0.4, relheight=0.4)
 
-        messagebox.showinfo("Data Export", f"Your data exported to {os.path.basename(fln)} successfully")
+        # Title Label
+        title = Label(frame, text="Attendance Export System", font=("Montserrat", 20, "bold"), bg="#ffffff", fg="black")
+        title.pack(pady=10)
 
+        # Subject Selection
+        Label(frame, text="Enter Subject Name:", font=("Montserrat", 14, "bold"), bg="#ffffff").pack(pady=5)
+        self.subject_var = StringVar()
+        Entry(frame, textvariable=self.subject_var, font=("Montserrat", 14)).pack(ipady=5, fill=X, padx=50)
 
-    def get_cursor(self, event=""):
-        cursor_row = self.AttendanceReportTable.focus()
-        content = self.AttendanceReportTable.item(cursor_row)
-        rows = content.get('values', [])
+        # Date Range Inputs with Date Picker
+        Label(frame, text="Select Date Range:", font=("Montserrat", 14, "bold"), bg="#ffffff").pack(pady=5)
 
-        if rows:  # Ensure rows is not empty before accessing indexes
-            self.var_atten_id.set(rows[0])
-            self.var_atten_roll.set(rows[1])
-            self.var_atten_name.set(rows[2])
-            self.var_atten_dep.set(rows[3])
-            self.var_atten_time.set(rows[4])
-            self.var_atten_date.set(rows[5])
-            self.var_atten_attendance.set(rows[6])
+        self.from_date = DateEntry(frame, font=("Montserrat", 14), date_pattern='yyyy-MM-dd')
+        self.from_date.pack(ipady=5, fill=X, padx=50)
 
-    def update_data(self):
-        messagebox.showinfo("Update", "Update function not implemented yet!", parent=self.root)
+        self.to_date = DateEntry(frame, font=("Montserrat", 14), date_pattern='yyyy-MM-dd')
+        self.to_date.pack(ipady=5, fill=X, padx=50)
 
-    def reset_data(self):
-        self.var_atten_id.set("")
-        self.var_atten_roll.set("")
-        self.var_atten_name.set("")
-        self.var_atten_dep.set("")
-        self.var_atten_time.set("")
-        self.var_atten_date.set("")
-        self.var_atten_attendance.set("Status")
+        # ✅ Styled Export Button
+        self.export_btn = Button(frame, text="Export Attendance", font=("Montserrat", 14, "bold"), bg="#4CAF50", fg="white", command=self.export_attendance)
+        self.export_btn.pack(pady=15)
+        self.export_btn.bind("<Enter>", self.on_hover)
+        self.export_btn.bind("<Leave>", self.on_leave)
 
+    def on_hover(self, event):
+        event.widget.config(bg="#45a049")
 
+    def on_leave(self, event):
+        event.widget.config(bg="#4CAF50")
 
+    def export_attendance(self):
+        subject = self.subject_var.get().strip()
+        from_date = self.from_date.get_date().strftime('%Y-%m-%d')
+        to_date = self.to_date.get_date().strftime('%Y-%m-%d')
+
+        if not subject:
+            messagebox.showerror("Error", "Subject Name is required!")
+            return
+
+        try:
+            conn = mysql.connector.connect(user="root", password="praful", host="localhost", database="face_recognizer", port=3305)
+            cursor = conn.cursor()
+
+            # Check if subject table exists
+            cursor.execute("SHOW TABLES LIKE %s", (subject,))
+            if not cursor.fetchone():
+                messagebox.showerror("Error", f"Subject '{subject}' does not exist in the database!")
+                return
+
+            # Fetch available date columns
+            cursor.execute(f"SHOW COLUMNS FROM `{subject}`")
+            table_columns = [col[0] for col in cursor.fetchall()]
+
+            # Generate required date range
+            date_columns = pd.date_range(from_date, to_date).strftime('%Y-%m-%d').tolist()
+            existing_columns = [f"`{date}`" for date in date_columns if date in table_columns]
+
+            if not existing_columns:
+                messagebox.showinfo("Info", "No valid attendance records found for the selected dates.")
+                return
+
+            # Fetch attendance data
+            query = f"SELECT student_id, name, roll, dep, {', '.join(existing_columns)} FROM `{subject}`"
+            cursor.execute(query)
+            data = cursor.fetchall()
+
+            if not data:
+                messagebox.showinfo("Info", "No attendance records found!")
+                return
+
+            # Convert to DataFrame
+            columns = ['Student ID', 'Name', 'Roll', 'Department'] + [col.strip('`') for col in existing_columns]
+            df = pd.DataFrame(data, columns=columns)
+
+            # Calculate total present days
+            df['Total Present'] = df.iloc[:, 4:].apply(lambda row: row.tolist().count('Present'), axis=1)
+
+            # Construct filename
+            filename = f"{subject}_{from_date}_to_{to_date}.xlsx"
+
+            # Save as Excel with formatted columns
+            wb = Workbook()
+            ws = wb.active
+            ws.title = subject
+
+            for r in dataframe_to_rows(df, index=False, header=True):
+                ws.append(r)
+
+            # Adjust column width based on content length
+            for col in ws.columns:
+                max_length = 0
+                col_letter = col[0].column_letter  # Get column letter
+                for cell in col:
+                    try:
+                        if cell.value:
+                            max_length = max(max_length, len(str(cell.value)))
+                    except:
+                        pass
+                ws.column_dimensions[col_letter].width = max_length + 2
+
+            # Center align headers
+            for cell in ws[1]:
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+
+            wb.save(filename)
+
+            # Open file automatically
+            os.startfile(filename)
+
+            messagebox.showinfo("Success", f"Attendance exported successfully as {filename}")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Database Error: {str(e)}")
+        finally:
+            conn.close()
 
 if __name__ == "__main__":
     root = Tk()
-    obj = Attendance(root)
+    app = AttendanceExport(root)
     root.mainloop()

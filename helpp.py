@@ -24,7 +24,7 @@ class Help:
         title_lbl.place(x=0, y=0, width=self.screen_width, height=self.title_height)
 
         # **Background Image (Scaled Dynamically)**
-        img_top = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/bg_image.jpg")
+        img_top = Image.open("college_images/attendence_bg.jpg")
         img_top = img_top.resize((self.screen_width, self.screen_height - self.title_height), Image.LANCZOS)
         self.photoimg_top = ImageTk.PhotoImage(img_top)
 

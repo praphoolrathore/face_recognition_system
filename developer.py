@@ -25,7 +25,7 @@ class Developer:
         title_lbl.place(x=0, y=0, width=self.screen_width, height=self.title_height)
 
         # **Background Image (Scaled Dynamically)**
-        img_top = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/bg_image.webp")
+        img_top = Image.open("college_images/bg_image.webp")
         img_top = img_top.resize((self.screen_width, self.screen_height - self.title_height), Image.LANCZOS)
         self.photoimg_top = ImageTk.PhotoImage(img_top)
 
@@ -39,7 +39,7 @@ class Developer:
                          width=self.frame_width, height=self.frame_height)
 
         # **Developer Profile Image (Scaled Dynamically)**
-        img_top1 = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/second_image.jpeg")
+        img_top1 = Image.open("college_images/second_image.jpeg")
         img_top1 = img_top1.resize((int(self.frame_width * 0.4), int(self.frame_height * 0.33)), Image.LANCZOS)
         self.photoimg_top1 = ImageTk.PhotoImage(img_top1)
 
@@ -51,7 +51,7 @@ class Developer:
         Label(main_frame, text="Developers, stay tuned!", font=("Montserrat", int(self.screen_width * 0.01), "bold"), bg="white").place(x=10, y=int(self.frame_height * 0.12))
 
         # **Additional Image (Scaled Dynamically)**
-        img2 = Image.open("C:/Users/ASUS/OneDrive/Desktop/face_recognition system/college_images/third_image.jpeg")
+        img2 = Image.open("college_images/third_image.jpeg")
         img2 = img2.resize((self.frame_width, int(self.frame_height * 0.65)), Image.LANCZOS)
         self.photoimg2 = ImageTk.PhotoImage(img2)
 

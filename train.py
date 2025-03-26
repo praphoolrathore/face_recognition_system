@@ -24,18 +24,49 @@ class Train:
 
     def train_classifier(self):
         data_dir = "data"
-        path = [os.path.join(data_dir, file) for file in os.listdir(data_dir)]
+
+        # **Check if folder exists**
+        if not os.path.exists(data_dir):
+            messagebox.showerror("Error", "Data folder not found!")
+            self.progress_window.destroy()
+            self.root.destroy()
+            return
+        
+        path = [os.path.join(data_dir, file) for file in os.listdir(data_dir) if file.endswith(('.jpg', '.png', '.jpeg'))]
+
+        if len(path) == 0:
+            messagebox.showerror("Error", "No images found in the data folder!")
+            self.progress_window.destroy()
+            self.root.destroy()
+            return
 
         faces = []
         ids = []
 
         for image in path:
-            img = Image.open(image).convert('L')  # Convert to grayscale
-            imageNp = np.array(img, 'uint8')
-            id = int(os.path.split(image)[1].split('.')[1])
+            try:
+                img = Image.open(image).convert('L')  # Convert to grayscale
+                imageNp = np.array(img, 'uint8')
 
-            faces.append(imageNp)
-            ids.append(id)
+                # **Extract ID safely**
+                filename = os.path.basename(image)
+                id_parts = filename.split('.')
+                if len(id_parts) < 2 or not id_parts[1].isdigit():
+                    print(f"Skipping invalid file: {filename}")
+                    continue
+
+                id = int(id_parts[1])
+
+                faces.append(imageNp)
+                ids.append(id)
+            except Exception as e:
+                print(f"Error processing image {image}: {e}")
+
+        if len(faces) < 2:
+            messagebox.showerror("Error", "Not enough training data. Add more face images!")
+            self.progress_window.destroy()
+            self.root.destroy()
+            return
 
         ids = np.array(ids)
 
