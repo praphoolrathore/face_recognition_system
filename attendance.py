@@ -11,9 +11,6 @@ import numpy as np
 from tkinter import filedialog
 import csv
 
-
-
-
 mydata=[]
 class Attendance:
     def __init__(self, root):
