@@ -39,7 +39,7 @@ class LoginSystem:
         Entry(frame, textvariable=self.password_var, font=("Orbitron", 12), bd=2, bg="#262626", fg="#00ffcc", show="*", insertbackground="#00ffcc").pack(pady=5, ipadx=10)
 
         Button(frame, text="Login", font=("Orbitron", 12, "bold"), bg="#00ffcc", fg="#1a1a1a", command=self.login_user).pack(pady=10)
-        Button(frame, text="Create Account", font=("Orbitron", 10), fg="#00ffcc", bg="#1a1a1a", command=self.create_signup_ui).pack()
+        #Button(frame, text="Create Account", font=("Orbitron", 10), fg="#00ffcc", bg="#1a1a1a", command=self.create_signup_ui).pack()
     
     def create_signup_ui(self):
         """Create Signup UI"""

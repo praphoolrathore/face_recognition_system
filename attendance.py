@@ -114,8 +114,14 @@ class AttendanceExport:
             # Calculate total present days
             df['Total Present'] = df.iloc[:, 4:].apply(lambda row: row.tolist().count('Present'), axis=1)
 
-            # Construct filename
+            # Ensure 'attendance' folder exists
+            save_folder = "attendance"
+            if not os.path.exists(save_folder):
+                os.makedirs(save_folder)
+
+            # Construct filename and save path
             filename = f"{subject}_{from_date}_to_{to_date}.xlsx"
+            save_path = os.path.join(save_folder, filename)
 
             # Save as Excel with formatted columns
             wb = Workbook()
@@ -141,12 +147,12 @@ class AttendanceExport:
             for cell in ws[1]:
                 cell.alignment = Alignment(horizontal="center", vertical="center")
 
-            wb.save(filename)
+            wb.save(save_path)
 
             # Open file automatically
-            os.startfile(filename)
+            os.startfile(save_path)
 
-            messagebox.showinfo("Success", f"Attendance exported successfully as {filename}")
+            messagebox.showinfo("Success", f"Attendance exported successfully and saved in '{save_folder}' folder as {filename}")
 
         except Exception as e:
             messagebox.showerror("Error", f"Database Error: {str(e)}")
