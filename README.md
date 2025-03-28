@@ -84,7 +84,7 @@ python main.py
 
 ### 🎥 Project Demonstration
 
-## 🎥 Project Demonstration
+ Video Demonstration
 [![Watch the Demo](https://img.youtube.com/vi/rTaP-dTynvI/maxresdefault.jpg)](https://youtu.be/rTaP-dTynvI)
 
 
