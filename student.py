@@ -666,7 +666,7 @@ class Student:  # Create class
                     return img[y:y+h, x:x+w]  # Return cropped face
                 return None  # If no face detected, return None
 
-            cap = cv2.VideoCapture(0)
+            cap = cv2.VideoCapture(1)
             img_id = 0
             
               # ✅ Use correct student ID

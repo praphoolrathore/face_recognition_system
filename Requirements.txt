@@ -1,0 +1,9 @@
+opencv-python
+opencv-contrib-python
+numpy
+pandas
+Pillow
+mysql-connector-python
+bcrypt
+tkcalendar
+openpyxl

@@ -158,7 +158,7 @@ class FaceRecognition:
         clf = cv2.face.LBPHFaceRecognizer_create()
         clf.read("classifier.xml")  # ✅ Load trained model
 
-        video_cap = cv2.VideoCapture(0)
+        video_cap = cv2.VideoCapture(1)
         if not video_cap.isOpened():
             messagebox.showerror("Error", "Camera not detected. Please check your webcam.")
             return
