@@ -9,11 +9,8 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Alignment
 from PIL import Image, ImageTk  # ✅ Import for background image
 
-<<<<<<< HEAD
-class AttendanceExport:
-=======
 
->>>>>>> 0a83c92d5bbdd7f5bc883267eea92617f9d2f72a
+class AttendanceExport:
     def __init__(self, root):
         self.root = root
         self.root.title("Attendance Export System")
